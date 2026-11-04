@@ -8,7 +8,7 @@ const verificationCodes = {};
 const users = {};
 const messages = [];
 
-// 1. مسار طلب كود التأكيد عبر رقم الهاتف
+// 1. مسار طلب كود التأكيد (للاختبار والتطوير)
 app.post('/api/auth/send-code', (req, res) => {
     const { phoneNumber } = req.body;
 
@@ -16,7 +16,6 @@ app.post('/api/auth/send-code', (req, res) => {
         return res.status(400).json({ success: false, message: 'رقم الهاتف غير صحيح' });
     }
 
-    // توليد كود تأكيد عشوائي من 4 أرقام
     const code = Math.floor(1000 + Math.random() * 9000).toString();
     verificationCodes[phoneNumber] = code;
 
@@ -47,7 +46,26 @@ app.post('/api/auth/verify-code', (req, res) => {
     res.status(400).json({ success: false, message: 'كود التأكيد غير صحيح أو منتهي الصلاحية' });
 });
 
-// 3. مسار إرسال رسالة جديدة
+// 3. مسار التحقق عبر المكالمة الفائتة (الطريقة المجانية البديلة)
+app.post('/api/auth/verify-missed-call', (req, res) => {
+    const { phoneNumber } = req.body;
+
+    if (!phoneNumber) {
+        return res.status(400).json({ success: false, message: 'رقم الهاتف مطلوب' });
+    }
+
+    users[phoneNumber] = { phoneNumber, registeredAt: new Date() };
+
+    console.log(`[We App Missed Call] تم التحقق من رقم الهاتف بنجاح: ${phoneNumber}`);
+
+    res.json({
+        success: true,
+        message: 'تم التحقق بنجاح',
+        token: `token_${phoneNumber}_${Date.now()}`
+    });
+});
+
+// 4. مسار إرسال رسالة جديدة
 app.post('/api/messages/send', (req, res) => {
     const { sender, text, type } = req.body;
 
@@ -68,7 +86,7 @@ app.post('/api/messages/send', (req, res) => {
     res.json({ success: true, message: newMessage });
 });
 
-// 4. مسار جلب جميع الرسائل
+// 5. مسار جلب جميع الرسائل
 app.get('/api/messages', (req, res) => {
     res.json({ success: true, messages });
 });
