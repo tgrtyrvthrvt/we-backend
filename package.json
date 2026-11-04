@@ -1,0 +1,12 @@
+{
+  "name": "we-app-backend",
+  "version": "1.0.0",
+  "description": "Cloud Backend API for We App",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
